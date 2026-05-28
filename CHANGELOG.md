@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0]
 
-### Uncategorized
+### Added
 
 - Wallet connect ([#46](https://github.com/MetaMask/test-dapp-tron/pull/46))
 - feat: add MetaMask adapter variant toggle in header ([#41](https://github.com/MetaMask/test-dapp-tron/pull/41))
+
+### Changed
+
 - build(deps-dev): bump @metamask/connect-tron from 0.3.0 to 0.3.1 ([#31](https://github.com/MetaMask/test-dapp-tron/pull/31))
 
 ## [0.3.1]
