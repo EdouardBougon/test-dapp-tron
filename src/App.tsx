@@ -19,33 +19,42 @@ const AppContent: FC = () => {
   const { variant } = useAdapterVariant();
   const { selectedNetwork } = useNetworkSelection();
 
+  // WalletConnect is only available on Mainnet — Shasta and Nile testnets
+  // are not supported, so the connector is hidden there entirely.
+  const isMainnet = selectedNetwork === 'mainnet';
+
   // Capture the network at mount time so the WalletConnectAdapter is only
-  // created once per variant change. Network switches after connection are
-  // handled by NetworkProvider.switchChain, avoiding a full reconnect.
+  // created once per (variant, category) change. Switching between mainnet
+  // and a testnet remounts WalletProvider via the `key` prop below; switches
+  // within the same category are handled by NetworkProvider.switchChain.
   const initialNetwork = useRef(selectedNetwork);
 
   const wallets = useMemo(
     () => [
       new TronLinkAdapter(),
       variant === 'metamask' ? new MetaMaskConnectTronAdapter() : new TronWeb3MetaMaskAdapter(),
-      new WalletConnectAdapter({
-        network: getWCNetworkName[initialNetwork.current],
-        options: {
-          projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ?? '',
-          metadata: {
-            name: 'MetaMask Tron Test DApp',
-            description: 'Test DApp for Tron',
-            url: window.location.origin,
-            icons: [],
-          },
-        },
-      }),
+      ...(isMainnet
+        ? [
+            new WalletConnectAdapter({
+              network: getWCNetworkName[initialNetwork.current],
+              options: {
+                projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ?? '',
+                metadata: {
+                  name: 'MetaMask Tron Test DApp',
+                  description: 'Test DApp for Tron',
+                  url: window.location.origin,
+                  icons: [],
+                },
+              },
+            }),
+          ]
+        : []),
     ],
-    [variant],
+    [variant, isMainnet],
   );
 
   return (
-    <WalletProvider key={variant} adapters={wallets} autoConnect={true}>
+    <WalletProvider key={`${variant}-${isMainnet ? 'mainnet' : 'testnet'}`} adapters={wallets} autoConnect={true}>
       <WalletModalProvider>
         <NetworkProvider>
           <div
